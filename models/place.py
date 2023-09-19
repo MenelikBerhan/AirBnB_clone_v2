@@ -52,9 +52,9 @@ class Place(BaseModel, Base):
             return [amenity for amenity in storage.all(Amenity).values()
                     if amenity.id in self.amenity_ids]
 
-    # @amenities.setter
-    # def amenities(self, amenity=None):
-    #     from models.amenity import Amenity
-    #     """Appends amenity ids to the attribute"""
-    #     if type(amenity) is Amenity and amenity.id not in self.amenity_ids:
-    #         self.amenity_ids.append(amenity.id)
+        @amenities.setter
+        def amenities(self, amenity=None):
+            from models.amenity import Amenity
+            """Appends amenity ids to the attribute"""
+            if type(amenity) is Amenity and amenity.id not in self.amenity_ids:
+                self.amenity_ids.append(amenity.id)
