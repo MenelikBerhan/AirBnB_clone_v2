@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 """This module defines a class to manage database based
 file storage for hbnb clone"""
-# import json
 from os import environ
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -24,10 +23,11 @@ class DBStorage:
     def __init__(self):
         """Initializes a `DBStorage` object"""
         self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.format(
-            environ['HBNB_MYSQL_USER'], quote_plus(environ['HBNB_MYSQL_PWD']),
-            environ['HBNB_MYSQL_HOST'], environ['HBNB_MYSQL_DB']),
+            environ.get('HBNB_MYSQL_USER'),
+            quote_plus(environ.get('HBNB_MYSQL_PWD')),
+            environ.get('HBNB_MYSQL_HOST'), environ.get('HBNB_MYSQL_DB')),
             pool_pre_ping=True)
-        if 'HBNB_ENV' in environ and environ['HBNB_ENV'] == 'test':
+        if environ.get('HBNB_ENV') == 'test':
             Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):

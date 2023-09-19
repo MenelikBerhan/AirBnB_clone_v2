@@ -2,14 +2,10 @@
 """ Console Module """
 import cmd
 import sys
-from models.base_model import BaseModel
-from models.__init__ import storage
-from models.user import User
-from models.place import Place
-from models.state import State
-from models.city import City
-from models.amenity import Amenity
-from models.review import Review
+from models import storage, class_dict
+from importlib import import_module
+
+classes = set(class_dict.keys())
 
 
 class HBNBCommand(cmd.Cmd):
@@ -18,11 +14,6 @@ class HBNBCommand(cmd.Cmd):
     # determines prompt for interactive/non-interactive modes
     prompt = '(hbnb) ' if sys.__stdin__.isatty() else ''
 
-    classes = {
-               'BaseModel': BaseModel, 'User': User, 'Place': Place,
-               'State': State, 'City': City, 'Amenity': Amenity,
-               'Review': Review
-              }
     dot_cmds = ['all', 'count', 'show', 'destroy', 'update']
     types = {
              'number_rooms': int, 'number_bathrooms': int,
@@ -119,7 +110,7 @@ class HBNBCommand(cmd.Cmd):
             print("** class name missing **")
             return
         arg_list = args.split()
-        if arg_list[0] not in HBNBCommand.classes:
+        if arg_list[0] not in classes:
             print("** class doesn't exist **")
             return
         params_dict = {}
@@ -149,21 +140,11 @@ class HBNBCommand(cmd.Cmd):
                         except ValueError:
                             continue
                     params_dict[key] = value
-        new_instance = HBNBCommand.classes[arg_list[0]]()
+        module = import_module(f"models.{class_dict[arg_list[0]]}")
+        new_instance = getattr(module, arg_list[0])()
         new_instance.__dict__.update(params_dict)
         new_instance.save()
         print(new_instance.id)
-        # eventhoug new_instace.save() calls storage.save() after calling
-        # storage.new(self), storage.save() has to be called again.
-        # needed for changes in the same interactive session to take effect???
-        # bug might be caused by multiple storage imports in BaseModel at
-        # function level.
-        # In our AirBnB_clone we imported it once in BaseModel at module level,
-        # and there was no bug like this.
-        # If imported at module level for this case, will cause circular
-        # import, since in console.py (unlike ours) imports are done at module
-        # level.
-        storage.save()
 
     def help_create(self):
         """ Help information for the create method """
@@ -184,7 +165,7 @@ class HBNBCommand(cmd.Cmd):
             print("** class name missing **")
             return
 
-        if c_name not in HBNBCommand.classes:
+        if c_name not in classes:
             print("** class doesn't exist **")
             return
 
@@ -194,7 +175,7 @@ class HBNBCommand(cmd.Cmd):
 
         key = c_name + "." + c_id
         try:
-            print(storage.all(HBNBCommand.classes[c_name])[key])
+            print(storage.all()[key])
         except KeyError:
             print("** no instance found **")
 
@@ -215,7 +196,7 @@ class HBNBCommand(cmd.Cmd):
             print("** class name missing **")
             return
 
-        if c_name not in HBNBCommand.classes:
+        if c_name not in classes:
             print("** class doesn't exist **")
             return
 
@@ -224,15 +205,10 @@ class HBNBCommand(cmd.Cmd):
             return
 
         key = c_name + "." + c_id
-        if key in storage.all(HBNBCommand.classes[c_name]):
-            storage.delete(storage.all(HBNBCommand.classes[c_name])[key])
+        if key in storage.all():
+            storage.delete(storage.all()[key])
         else:
             print("** no instance found **")
-        # try:
-        #     del (storage.all()[key])
-        #     storage.save()
-        # except KeyError:
-        #     print("** no instance found **")
 
     def help_destroy(self):
         """ Help information for the destroy command """
@@ -244,10 +220,10 @@ class HBNBCommand(cmd.Cmd):
         print_list = []
         if args:
             args = args.split(' ')[0]  # remove possible trailing args
-            if args not in HBNBCommand.classes:
+            if args not in classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in storage.all(HBNBCommand.classes[args]).items():
+            for k, v in storage.all().items():
                 if k.split('.')[0] == args:
                     print_list.append(str(v))
         else:
@@ -263,7 +239,7 @@ class HBNBCommand(cmd.Cmd):
     def do_count(self, args):
         """Count current number of class instances"""
         count = 0
-        for k, v in storage.all(HBNBCommand.classes[args]).items():
+        for k, v in storage.all().items():
             if args == k.split('.')[0]:
                 count += 1
         print(count)
@@ -283,7 +259,7 @@ class HBNBCommand(cmd.Cmd):
         else:  # class name not present
             print("** class name missing **")
             return
-        if c_name not in HBNBCommand.classes:  # class name invalid
+        if c_name not in classes:  # class name invalid
             print("** class doesn't exist **")
             return
 
@@ -332,8 +308,8 @@ class HBNBCommand(cmd.Cmd):
 
             args = [att_name, att_val]
 
-        # retrieve dictionary of current objects
-        new_dict = storage.all()[key]
+        # retrieve current object
+        obj = storage.all()[key]
 
         # iterate through attr names and values
         for i, att_name in enumerate(args):
@@ -351,9 +327,8 @@ class HBNBCommand(cmd.Cmd):
                     att_val = HBNBCommand.types[att_name](att_val)
 
                 # update dictionary with name, value pair
-                new_dict.__dict__.update({att_name: att_val})
-
-        new_dict.save()  # save updates to file
+                obj.__dict__.update({att_name: att_val})
+        obj.save()  # save updates to file
 
     def help_update(self):
         """ Help information for the update class """
