@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """This module defines a class to manage database based
 file storage for hbnb clone"""
 from os import environ
