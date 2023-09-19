@@ -34,16 +34,16 @@ class Place(BaseModel, Base):
                                cascade='all, delete-orphan')
         amenities = relationship('Amenity', secondary=place_amenity,
                                  back_populates='place_amenities', viewonly=False)
-    # else:
-    #     @property
-    #     def reviews(self):
-    #         """returns the list of `Review` instances with `place_id` equals
-    #         to the current Place.id"""
-    #         from models import storage
-    #         from models.review import Review
-    #         return [review for review in storage.all(Review).values()
-    #                 if review.place_id == self.id]
-    #     # return [review for review in self.reviews if review.place_id == self.id]
+    else:
+        @property
+        def reviews(self):
+            """returns the list of `Review` instances with `place_id` equals
+            to the current Place.id"""
+            from models import storage
+            from models.review import Review
+            return [review for review in storage.all(Review).values()
+                    if review.place_id == self.id]
+        # return [review for review in self.reviews if review.place_id == self.id]
 
     #     @property
     #     def amenities(self):
