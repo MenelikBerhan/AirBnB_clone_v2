@@ -21,12 +21,6 @@ class BaseModel:
             self.created_at = datetime.now()
             self.updated_at = datetime.now()
         else:
-            # kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
-            #                                          '%Y-%m-%dT%H:%M:%S.%f')
-            # kwargs['created_at'] = datetime.strptime(kwargs['created_at'],
-            #                                          '%Y-%m-%dT%H:%M:%S.%f')
-            # del kwargs['__class__']
-            # self.__dict__.update(kwargs)
             for key, value in kwargs.items():
                 if key in ('created_at', 'updated_at'):
                     self.__setattr__(key, datetime.fromisoformat(value))
@@ -35,9 +29,9 @@ class BaseModel:
             if not hasattr(kwargs, 'id'):
                 setattr(self, 'id', str(uuid.uuid4()))
             if not hasattr(kwargs, 'created_at'):
-                setattr(self, 'created_at', datetime.now())
+                setattr(self, 'created_at', datetime.utcnow())
             if not hasattr(kwargs, 'updated_at'):
-                setattr(self, 'updated_at', datetime.now())
+                setattr(self, 'updated_at', datetime.utcnow())
 
     def __str__(self):
         """Returns a string representation of the instance"""
