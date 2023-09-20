@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 """ Console Module """
 import cmd
 import sys
@@ -141,8 +141,8 @@ class HBNBCommand(cmd.Cmd):
                             continue
                     params_dict[key] = value
         module = import_module(f"models.{class_dict[arg_list[0]]}")
-        new_instance = getattr(module, arg_list[0])()
-        new_instance.__dict__.update(params_dict)
+        new_instance = getattr(module, arg_list[0])(**params_dict)
+        # new_instance.__dict__.update(params_dict)
         new_instance.save()
         print(new_instance.id)
 
@@ -175,7 +175,9 @@ class HBNBCommand(cmd.Cmd):
 
         key = c_name + "." + c_id
         try:
-            print(storage.all()[key])
+            module = import_module(f"models.{class_dict[c_name]}")
+            cls = getattr(module, c_name)
+            print(storage.all(cls)[key])
         except KeyError:
             print("** no instance found **")
 
@@ -205,8 +207,11 @@ class HBNBCommand(cmd.Cmd):
             return
 
         key = c_name + "." + c_id
-        if key in storage.all():
-            storage.delete(storage.all()[key])
+        module = import_module(f"models.{class_dict[c_name]}")
+        cls = getattr(module, c_name)
+        obj = storage.all(cls).get(key)
+        if obj:
+            storage.delete(obj)
         else:
             print("** no instance found **")
 
@@ -223,12 +228,13 @@ class HBNBCommand(cmd.Cmd):
             if args not in classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in storage.all().items():
-                if k.split('.')[0] == args:
-                    print_list.append(str(v))
+            module = import_module(f"models.{class_dict[args]}")
+            cls = getattr(module, args)
+            for obj in storage.all(cls).values():
+                print_list.append(str(obj))
         else:
-            for k, v in storage.all().items():
-                print_list.append(str(v))
+            for obj in storage.all().values():
+                print_list.append(str(obj))
         print(print_list)
 
     def help_all(self):
@@ -238,10 +244,12 @@ class HBNBCommand(cmd.Cmd):
 
     def do_count(self, args):
         """Count current number of class instances"""
-        count = 0
-        for k, v in storage.all().items():
-            if args == k.split('.')[0]:
-                count += 1
+        if args in classes:
+            module = import_module(f"models.{class_dict[args]}")
+            cls = getattr(module, args)
+            count = len(storage.all(cls))
+        else:
+            count = 0
         print(count)
 
     def help_count(self):
@@ -274,8 +282,13 @@ class HBNBCommand(cmd.Cmd):
         # generate key from class and id
         key = c_name + "." + c_id
 
+        # retrieve current object
+        module = import_module(f"models.{class_dict[c_name]}")
+        cls = getattr(module, c_name)
+        obj = storage.all(cls).get(key)
+
         # determine if key is present
-        if key not in storage.all():
+        if not obj:
             print("** no instance found **")
             return
 
@@ -308,9 +321,6 @@ class HBNBCommand(cmd.Cmd):
 
             args = [att_name, att_val]
 
-        # retrieve current object
-        obj = storage.all()[key]
-
         # iterate through attr names and values
         for i, att_name in enumerate(args):
             # block only runs on even iterations
@@ -327,8 +337,10 @@ class HBNBCommand(cmd.Cmd):
                     att_val = HBNBCommand.types[att_name](att_val)
 
                 # update dictionary with name, value pair
-                obj.__dict__.update({att_name: att_val})
-        obj.save()  # save updates to file
+                # obj.__dict__.update({att_name: att_val})
+                obj.__setattr__(att_name, att_val)  # why __dict__ didn't work?
+
+        obj.save()  # save updates to storage
 
     def help_update(self):
         """ Help information for the update class """
