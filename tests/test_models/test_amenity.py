@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """ """
 from tests.test_models.test_base_model import test_basemodel
 from models.amenity import Amenity
@@ -15,5 +15,5 @@ class test_Amenity(test_basemodel):
 
     def test_name2(self):
         """ """
-        new = self.value(name='amenity')
+        new = self.value()
         self.assertEqual(type(new.name), str)

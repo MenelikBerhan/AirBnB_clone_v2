@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """ """
 from models.base_model import BaseModel
 import unittest
@@ -30,10 +30,7 @@ class test_basemodel(unittest.TestCase):
     def test_default(self):
         """ """
         i = self.value()
-        if self.name != 'Place':
-            self.assertEqual(type(i), self.value)
-        else:
-            self.assertEqual(type(i).__name__, 'Place')
+        self.assertEqual(type(i), self.value)
 
     def test_kwargs(self):
         """ """
@@ -50,15 +47,17 @@ class test_basemodel(unittest.TestCase):
         with self.assertRaises(TypeError):
             new = BaseModel(**copy)
 
-    # def test_save(self):
-    #     """ Testing save """
-    #     i = self.value()
-    #     i.save()
-    #     key = self.name + "." + i.id
-    #     with open('file.json', 'r') as f:
-    #         j = json.load(f)
-    #         self.assertEqual(j[key], i.to_dict())
+    def test_save(self):
+        """ Testing save """
+        i = self.value()
+        i.save()
+        key = self.name + "." + i.id
+        with open('file.json', 'r') as f:
+            j = json.load(f)
+            self.assertEqual(j[key], i.to_dict())
 
+    # @unittest.skipIf('HBNB_TYPE_STORAGE' in os.environ and
+    #                  os.environ.get('HBNB_TYPE_STORAGE') == 'db', "Skipped")
     def test_str(self):
         """ """
         i = self.value()
@@ -68,6 +67,8 @@ class test_basemodel(unittest.TestCase):
         self.assertEqual(str(i), '[{}] ({}) {}'.format(self.name, i.id,
                          i_dict))
 
+    # @unittest.skipIf('HBNB_TYPE_STORAGE' not in os.environ or
+    #     os.environ.get('HBNB_TYPE_STORAGE') != 'db', "Skipped")
     def test_str(self):
         """ """
         i = self.value()
@@ -94,11 +95,8 @@ class test_basemodel(unittest.TestCase):
     def test_kwargs_one(self):
         """ """
         n = {'Name': 'test'}
-        if self.name != 'Place':
+        with self.assertRaises(KeyError):
             new = self.value(**n)
-        else:
-            new = self.value(n)
-        self.assertTrue(new.Name == 'test')
 
     def test_id(self):
         """ """

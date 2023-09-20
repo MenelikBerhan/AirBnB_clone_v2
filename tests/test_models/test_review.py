@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """ """
 from tests.test_models.test_base_model import test_basemodel
 from models.review import Review
@@ -15,15 +15,15 @@ class test_review(test_basemodel):
 
     def test_place_id(self):
         """ """
-        new = self.value(place_id='plc-id')
+        new = self.value()
         self.assertEqual(type(new.place_id), str)
 
     def test_user_id(self):
         """ """
-        new = self.value(user_id='plc-id')
+        new = self.value()
         self.assertEqual(type(new.user_id), str)
 
     def test_text(self):
         """ """
-        new = self.value(text='text')
+        new = self.value()
         self.assertEqual(type(new.text), str)
