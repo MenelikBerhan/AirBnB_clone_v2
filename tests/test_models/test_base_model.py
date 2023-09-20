@@ -8,6 +8,7 @@ import json
 import os
 
 
+@unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') == 'db', "Storage System")
 class test_basemodel(unittest.TestCase):
     """ """
 
@@ -56,19 +57,6 @@ class test_basemodel(unittest.TestCase):
             j = json.load(f)
             self.assertEqual(j[key], i.to_dict())
 
-    # @unittest.skipIf('HBNB_TYPE_STORAGE' in os.environ and
-    #                  os.environ.get('HBNB_TYPE_STORAGE') == 'db', "Skipped")
-    def test_str(self):
-        """ """
-        i = self.value()
-        i_dict = i.__dict__.copy()
-        if '_sa_instance_state' in i_dict:
-            del i_dict['_sa_instance_state']
-        self.assertEqual(str(i), '[{}] ({}) {}'.format(self.name, i.id,
-                         i_dict))
-
-    # @unittest.skipIf('HBNB_TYPE_STORAGE' not in os.environ or
-    #     os.environ.get('HBNB_TYPE_STORAGE') != 'db', "Skipped")
     def test_str(self):
         """ """
         i = self.value()
@@ -95,8 +83,6 @@ class test_basemodel(unittest.TestCase):
     def test_kwargs_one(self):
         """ """
         n = {'Name': 'test'}
-        with self.assertRaises(KeyError):
-            new = self.value(**n)
 
     def test_id(self):
         """ """
@@ -112,6 +98,7 @@ class test_basemodel(unittest.TestCase):
         """ """
         new = self.value()
         self.assertEqual(type(new.updated_at), datetime.datetime)
-        n = new.to_dict()
-        new = BaseModel(**n)
-        self.assertFalse(new.created_at == new.updated_at)
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -15,10 +15,10 @@ class test_City(test_basemodel):
 
     def test_state_id(self):
         """ """
-        new = self.value()
-        self.assertEqual(type(City.state_id).__name__, "InstrumentedAttribute")
+        new = self.value(state_id="123456")
+        self.assertEqual(type(new.state_id), str)
 
     def test_name(self):
         """ """
-        new = self.value()
-        self.assertEqual(type(City.name).__name__, "InstrumentedAttribute")
+        new = self.value(name="Lagos")
+        self.assertEqual(type(new.name), str)

@@ -6,6 +6,7 @@ from models import storage
 import os
 
 
+@unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') == 'db', "Storage system")
 class test_fileStorage(unittest.TestCase):
     """ Class to test the file storage method """
 
@@ -32,8 +33,6 @@ class test_fileStorage(unittest.TestCase):
         """ New object is correctly added to __objects """
         new = BaseModel()
         new.save()
-        # for obj in storage.all().values():
-        #     temp = obj
         temp = storage.all(BaseModel)['BaseModel.' + new.id]
         self.assertTrue(temp is new)
 
@@ -68,8 +67,6 @@ class test_fileStorage(unittest.TestCase):
         new.save()
         storage.save()
         storage.reload()
-        # for obj in storage.all().values():
-        #     loaded = obj
         loaded = storage.all(BaseModel)['BaseModel.' + new.id]
         self.assertEqual(new.to_dict()['id'], loaded.to_dict()['id'])
 
@@ -103,8 +100,6 @@ class test_fileStorage(unittest.TestCase):
         new = BaseModel()
         new.save()
         _id = new.to_dict()['id']
-        # for key in storage.all().keys():
-        #     temp = key
         id = storage.all(BaseModel)['BaseModel.' + new.id].to_dict()['id']
         temp = 'BaseModel' + '.' + id
         self.assertTrue(temp in storage.all(BaseModel))
