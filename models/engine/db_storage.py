@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """This module defines a class to manage database based
 file storage for hbnb clone"""
 from os import environ
@@ -34,7 +34,7 @@ class DBStorage:
         """Returns a dictionary of models currently in storage"""
         if not cls:
             objs = []
-            for obj_cls in (State, City, User, Place, Review):
+            for obj_cls in (State, City, User, Place, Review, Amenity):
                 objs.extend(list(self.__session.query(obj_cls)))
             return {obj.__class__.__name__ + '.' + obj.id: obj for obj in objs}
         return {obj.__class__.__name__ + '.' + obj.id: obj for obj in
