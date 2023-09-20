@@ -1,6 +1,10 @@
 #!/usr/bin/python3
 """ """
 from tests.test_models.test_base_model import test_basemodel
+from models.state import State
+from models.city import City
+from models.user import User
+
 from models.place import Place
 
 
@@ -11,7 +15,16 @@ class test_Place(test_basemodel):
         """ """
         super().__init__(*args, **kwargs)
         self.name = "Place"
-        self.value = Place
+        state = State(name='state')
+        city = City(name='city', state_id=state.id)
+        user = User(email="gui@hbtn.io", password="guipwd",
+                    first_name="Guillaume", last_name="Snow")
+
+        self.value = lambda arg_dict={}: Place(
+            city_id=city.id, user_id=user.id, name="Lovely_place",
+            number_rooms=3, number_bathrooms=1, max_guest=6,
+            description='nice', price_by_night=120, latitude=37.773972,
+            longitude=-122.431297, **arg_dict)
 
     def test_city_id(self):
         """ """
