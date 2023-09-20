@@ -1,17 +1,16 @@
 #!/usr/bin/python3
 """ Place Module for HBNB project """
-from os import environ
+from os import getenv
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, Float, ForeignKey, Integer, String, Table
 from sqlalchemy.orm import relationship
 
-
-place_amenity = Table(
-    'place_amenity', Base.metadata,
-    Column('place_id', String(60), ForeignKey('places.id'),
-           primary_key=True, nullable=False),
-    Column('amenity_id', String(60), ForeignKey('amenities.id'),
-           primary_key=True, nullable=False))
+place_amenity = Table('place_amenity', Base.metadata,
+                      Column('place_id', String(60), ForeignKey('places.id'),
+                             primary_key=True, nullable=False),
+                      Column('amenity_id', String(60),
+                             ForeignKey('amenities.id'),
+                             primary_key=True, nullable=False))
 
 
 class Place(BaseModel, Base):
@@ -31,11 +30,12 @@ class Place(BaseModel, Base):
     longitude = Column(Float, nullable=True)
     amenity_ids = []
 
-    if environ.get('HBNB_TYPE_STORAGE') == 'db':
+    if getenv("HBNB_TYPE_STORAGE") == "db":
         reviews = relationship('Review', backref='place',
                                cascade='all, delete-orphan')
-        amenities = relationship('Amenity', secondary=place_amenity,
-                                 backref='place_amenities', viewonly=False)
+        amenities = relationship(
+            'Amenity', secondary=place_amenity,
+            back_populates='place_amenities', viewonly=False)
     else:
         @property
         def reviews(self):
@@ -48,14 +48,16 @@ class Place(BaseModel, Base):
 
         @property
         def amenities(self):
-            """Getter and setter for class attribute amenities"""
+            """returns the list of 'Amenity' instances
+            based on the attribute"""
             from models import storage
             from models.amenity import Amenity
             return [amenity for amenity in storage.all(Amenity).values()
                     if amenity.id in self.amenity_ids]
 
         @amenities.setter
-        def amenities(self, amenity):
+        def amenities(self, amenity=None):
             from models.amenity import Amenity
-            if type(amenity) == Amenity:
+            """Appends amenity ids to the attribute"""
+            if type(amenity) is Amenity and amenity.id not in self.amenity_ids:
                 self.amenity_ids.append(amenity.id)
