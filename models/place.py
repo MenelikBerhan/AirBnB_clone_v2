@@ -8,7 +8,8 @@ from sqlalchemy.orm import relationship
 place_amenity = Table('place_amenity', Base.metadata,
                       Column('place_id', String(60), ForeignKey('places.id'),
                              primary_key=True, nullable=False),
-                      Column('amenity_id', String(60), ForeignKey('amenities.id'),
+                      Column('amenity_id', String(60),
+                             ForeignKey('amenities.id'),
                              primary_key=True, nullable=False))
 
 
@@ -32,8 +33,9 @@ class Place(BaseModel, Base):
     if getenv("HBNB_TYPE_STORAGE") == "db":
         reviews = relationship('Review', backref='place',
                                cascade='all, delete-orphan')
-        amenities = relationship('Amenity', secondary=place_amenity,
-                                 back_populates='place_amenities', viewonly=False)
+        amenities = relationship(
+            'Amenity', secondary=place_amenity,
+            back_populates='place_amenities', viewonly=False)
     else:
         @property
         def reviews(self):
@@ -46,7 +48,8 @@ class Place(BaseModel, Base):
 
         @property
         def amenities(self):
-            """returns the list of 'Amenity' instances based on the attribute"""
+            """returns the list of 'Amenity' instances
+            based on the attribute"""
             from models import storage
             from models.amenity import Amenity
             return [amenity for amenity in storage.all(Amenity).values()
