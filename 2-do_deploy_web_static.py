@@ -1,16 +1,29 @@
 #!/usr/bin/python3
 """A fab file for webserver deployment"""
 from fabric.api import *
+from datetime import datetime
 import os
+# env.hosts = ['18.206.208.78', '54.162.233.113']
+# env.user = 'ubuntu'
+# env.use_ssh_config = True
 
-env.hosts = ['18.206.208.78', '54.162.233.113']
-env.user = 'ubuntu'
-env.use_ssh_config = True
+
+def do_pack():
+    """ generates a .tgz archive from the contents of the web_static folder"""
+    now = datetime.now().strftime('%Y%m%d%H%M%S')
+    name = "versions/web_static_{}.tgz".format(now)
+    if not os.path.isdir("versions"):
+        local("mkdir versions")
+    with settings(warn_only=True):
+        res = local("tar -cvzf {} web_static 2>&1".format(name), capture=True)
+    if res.failed:
+        return None
+    return name
 
 
 def do_deploy(archive_path):
     """distributes an archive to my web servers"""
-    if not os.path.isfile(archive_path):
+    if not os.path.exists(archive_path):
         return False
 
     with settings(warn_only=True):
@@ -25,16 +38,15 @@ def do_deploy(archive_path):
         # extract to extract_path
         if run('tar -xzf /tmp/{} -C {}'
                 .format(archive_name, extract_path)).failed:
+            # clean up incase of extraction failure
+            run('rm -rf /tmp/{}'.format(archive_name))
+            run('rm -rf {}'.format(extract_path))
             return False
         # remvoe archive
-        if run('rm /tmp/{}'.format(archive_name)).failed:
+        if run('rm -rf /tmp/{}'.format(archive_name)).failed:
             return False
-        # # move content from web_static to parent folder
-        # if run('mv {}web_static/* {}'
-        #         .format(extract_path, extract_path)).failed:
-        #     return False
-        # copy content from web_static to parent folder
-        # if there is file in parent update if file is newer
+        # copy content from new web_static version to parent folder
+        # if there are files in parent update if file is newer
         if run('cp -uR {}web_static/* {}'
                 .format(extract_path, extract_path)).failed:
             return False
@@ -44,8 +56,8 @@ def do_deploy(archive_path):
         # remove current symbolic link
         if run('rm -rf /data/web_static/current').failed:
             return False
-        # create a new symbolic link of new the version inplace of deleted
-        if run('ln -s {} /data/web_static/current'
+        # create a new symbolic link of the new version inplace of deleted
+        if run('ln -fs {} /data/web_static/current'
                 .format(extract_path)).failed:
             return False
     print('New version deployed!')
