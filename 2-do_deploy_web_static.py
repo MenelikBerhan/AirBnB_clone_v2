@@ -46,3 +46,5 @@ def do_deploy(archive_path):
         if run('ln -s {} /data/web_static/current'
                .format(extract_path)).failed:
             return False
+
+    return True
