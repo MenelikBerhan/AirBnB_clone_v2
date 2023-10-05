@@ -9,43 +9,24 @@ env.user = 'ubuntu'
 
 
 def do_deploy(archive_path):
-    """distributes an archive to my web servers"""
-    if not os.path.isfile(archive_path):
+    """distributes an archive to your web servers"""
+    if not os.path.exists(archive_path):
         return False
 
-    with settings(warn_only=True):
-        create_tmp = run('mkdir -p /tmp/')
-        if create_tmp.failed:
-            return False
-        with cd('/tmp'):
-            if put(archive_path, '/tmp/').failed:
-                return False
-            archive_name = archive_path.split('/')[-1]
-            extract_path = '/data/web_static/releases/'\
-                + archive_name.split('.')[0] + '/'
-            # create extraction folder
-            if run('mkdir -p {}'.format(extract_path)).failed:
-                return False
-            # extract to extract_path
-            if run('tar -xzf /tmp/{} -C {}'
-                   .format(archive_name, extract_path)).failed:
-                return False
-            # remvoe archive
-            if run('rm /tmp/{}'.format(archive_name)).failed:
-                return False
-            # move content from web_static to parent folder
-            if run('mv {}web_static/* {}'
-                   .format(extract_path, extract_path)).failed:
-                return False
-            # remove empty folder web_static
-            if run('rm -rf {}web_static'.format(extract_path)).failed:
-                return False
-            # remove current symbolic link
-            if run('rm -rf /data/web_static/current').failed:
-                return False
-            # create a new symbolic link of new the version inplace of deleted
-            if run('ln -s {} /data/web_static/current'
-                   .format(extract_path)).failed:
-                return False
-    print('New version deployed!')
-    return True
+    try:
+        put(archive_path, "/tmp/")
+        archive = archive_path.split("/")[1]
+        file = archive.split(".")[0]
+        release = "/data/web_static/releases/"
+        folder = "/data/web_static/releases/{}".format(file)
+        run("mkdir -p {}".format(folder))
+        run(" tar -xzf /tmp/{} -C {}".format(archive, folder))
+        run("rm /tmp/{}".format(archive))
+        run("mv {}{}/web_static/* {}{}/".format(release, file, release, file))
+        run("rm -rf /data/web_static/releases/{}/web_static".format(file))
+        run("rm -rf /data/web_static/current")
+        run("ln -s {} /data/web_static/current".format(folder))
+        print("New version deployed!")
+        return True
+    except Exception:
+        return False
