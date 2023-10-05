@@ -3,7 +3,7 @@
 from datetime import datetime
 from fabric.api import *
 import os
-env.use_ssh_config = True
+# env.use_ssh_config = True
 env.hosts = ['18.206.208.78', '54.162.233.113']
 env.user = 'ubuntu'
 
