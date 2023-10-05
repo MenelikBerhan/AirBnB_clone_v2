@@ -33,7 +33,7 @@ echo "<html>
 # Create a symbolic link
 sudo ln -sf /data/web_static/releases/test/ /data/web_static/current
 # Change owner user and group of root folder /data
-sudo chown -hR \"ubuntu\":\"ubuntu\" /data/
+sudo chown -hR "ubuntu:ubuntu" /data/
 
 # Config nginx to serve hbnb_static if it hasn't been configured yet
 insert="server_name _;\n\tlocation \/hbnb_static\/ {\n\t\talias \/data\/web_static\/current\/;\n\t}"
