@@ -1,7 +1,7 @@
 # Set up my webservers for web server use
 
 exec { 'update_and_install_nginx':
-  command => 'apt-get update; apt-get -y install nginx',
+  command  => 'apt-get update; apt-get -y install nginx',
   provider => shell
 }
 -> exec {'create_folders':
@@ -12,12 +12,12 @@ provider => shell
 command  => 'echo "Menelik Berhan" > /data/web_static/releases/test/index.html',
 provider => shell
 }
--> exec {'symbolic_link-change_owner':
+-> exec {'symbolic_link_change_owner':
 command  => 'ln -sf /data/web_static/releases/test /data/web_static/current; chown -R ubuntu:ubuntu /data/;',
 provider => shell
 }
 -> exec {'config_nginx':
-command => 'sudo sed -i "s/server_name _;/server_name _;\n\n\tlocation /hbnb_static {\n\t\talias /data/web_static/current/;\n\t}|" /etc/nginx/sites-enabled/default',
+command  => 'sudo sed -i "s/server_name _;/server_name _;\n\n\tlocation /hbnb_static {\n\t\talias /data/web_static/current/;\n\t}|" /etc/nginx/sites-available/default',
 provider => shell
 }
 -> exec {'restart_nginx':
