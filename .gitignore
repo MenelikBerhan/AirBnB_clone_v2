@@ -11,3 +11,4 @@ versions/*
 flasky-master/*
 microblog/*
 .gitignore
+web_flask/templates/w3c_validator.py
