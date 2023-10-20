@@ -8,3 +8,6 @@ alchemy/*
 Our_AirBnb/*
 main*.py
 versions/*
+flasky-master/*
+microblog/*
+.gitignore
