@@ -16,21 +16,17 @@ def remove_session(exception):
 @app.route('/states', strict_slashes=False)
 @app.route('/states/<id>', strict_slashes=False)
 def states(id=None):
-    """Displays a list of states"""
+    """Displays a list of states or list of cities for a state"""
     if id is None:
-        states = sorted(storage.all(State).values(),
-                        key=lambda state: state.name)
+        states = storage.all(State).values()
         return render_template('9-states.html', states=states, id=None)
     else:
         states = storage.all(State)
         if ('State.' + escape(id)) in states:
             state = states['State.' + escape(id)]
-            cities = state.cities
-            return render_template('9-states.html', state_name=state.name,
-                                   cities=cities)
+            return render_template('9-states.html', state=state)
         else:
-            return render_template('9-states.html', state_name=None,
-                                   cities=None)
+            return render_template('9-states.html', state=None)
 
 
 if __name__ == '__main__':
