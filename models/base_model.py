@@ -11,12 +11,9 @@ Base = declarative_base()
 
 class BaseModel:
     """A base class for all hbnb models"""
-    id = mapped_column(String(60), primary_key=True, unique=True,
-                       nullable=False, sort_order=-3)
-    created_at = mapped_column(DateTime, nullable=False,
-                               default=datetime.utcnow(), sort_order=-2)
-    updated_at = mapped_column(DateTime, nullable=False,
-                               default=datetime.utcnow(), sort_order=-1)
+    id = Column(String(60), primary_key=True, unique=True, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow())
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow())
 
     def __init__(self, *args, **kwargs):
         """Instatntiates a new model"""
