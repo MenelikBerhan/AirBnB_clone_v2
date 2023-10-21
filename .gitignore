@@ -14,3 +14,4 @@ web_flask/templates/w3c_validator.py
 w3c_validator.py
 
 7-main.py
+7-dump.sql
